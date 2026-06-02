@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+redis
+alembic
+pymysql
+httpx
+qrcode[pil]
+user-agents
+dateparser
+python-dotenv
+pydantic-settings
+scalar-fastapi
