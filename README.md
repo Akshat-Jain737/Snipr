@@ -113,7 +113,7 @@ This project is under active development. Here are some of the features planned 
 - **Protected Routes & User-Specific URLs**:
   - Once authentication is in place, routes for creating, updating, deleting, and viewing analytics for URLs will be protected.
   - Users will only be able to manage and view analytics for the URLs they have created.
-- **Protected Routes & User-Specific URLs**:
+- **Files and Folders structure**:
   - planned to improve files and folders structure
 - **Async Codebase**:
   - Refactor synchronous database and caching operations to be fully asynchronous to leverage FastAPI's performance benefits.
