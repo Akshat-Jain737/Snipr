@@ -1,3 +1,4 @@
+from datetime import datetime
 import ipaddress
 import socket
 from urllib.parse import urlparse
@@ -45,3 +46,7 @@ class urlscheme(BaseModel):
             raise ValueError("Host cannot be resolved")
         
         return value
+
+
+class UpdateURLPayload(BaseModel):
+    expiry_time:str

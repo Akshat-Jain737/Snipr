@@ -4,3 +4,7 @@
 .env
 /alembic
 alembic.ini
+email_services.py 
+otp_services.py
+dump.rdb
+ai.py

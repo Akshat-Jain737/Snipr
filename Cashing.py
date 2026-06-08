@@ -1,12 +1,11 @@
 import time
 import uuid
 
-from fastapi import Request, status, HTTPException
-import redis
+from fastapi import Request, HTTPException
+import redis.asyncio as aioredis
+rdis = aioredis.from_url(url='redis://localhost:6379', decode_responses=True)
 
-rdis = redis.Redis(host='localhost', port=6379, decode_responses=True)
-
-def rate_limit(request:Request):
+async def rate_limit(request:Request):
     ip=request.client.host
     window_limit=10
     key=f'rate_limt:{ip}'
@@ -15,12 +14,12 @@ def rate_limit(request:Request):
     window=curr_time-window_size
     req_id=str(uuid.uuid4())
     pipe=rdis.pipeline()
-
-    pipe.zremrangebyscore(key, 0, window)
-    pipe.zadd(key, {req_id: curr_time})
-    pipe.zcard(key)
-    pipe.expire(key, window_size)
-    result = pipe.execute()
+    async with rdis.pipeline() as pipe:
+        pipe.zremrangebyscore(key, 0, window)
+        pipe.zadd(key, {req_id: curr_time})
+        pipe.zcard(key)
+        pipe.expire(key, window_size)
+        result = pipe.execute()
     total_Request_in_window=result[2]
     if total_Request_in_window>window_limit:
         raise HTTPException(status_code=429, detail="to many requests")

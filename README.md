@@ -1,10 +1,16 @@
 # Snipr
 
-A robust and feature-rich URL shortener service built with Python and FastAPI. This service allows you to shorten long URLs, generate QR codes, and track analytics for each shortened link along with fast redirect.
+A robust and feature-rich URL shortener service built with Python and FastAPI. This service allows users to shorten long URLs, generate QR codes, and track analytics for each shortened link, all with fast redirects and a secure authentication system.
 
 ## Features
 
 - **URL Shortening**: Create short, manageable links from long URLs with support for custom aliases and expiration times.
+- **User Authentication**: Secure user registration and login system using JWT (JSON Web Tokens) with access and refresh tokens. Refresh token rotation is implemented for enhanced security.
+- **Full URL Management**: Users can update the expiration time of their URLs or delete them entirely.
+- **User-Specific Data**:
+  - Users can only manage and view analytics for the URLs they have created.
+  - List all URLs created by the currently authenticated user.
+- **Asynchronous from the Ground Up**: Built with `async` and `await` to be fully asynchronous, leveraging FastAPI's performance benefits for high-concurrency.
 - **Safety First**: Integrates with the Google Safe Browsing API to prevent the shortening of malicious or unsafe URLs.
 - **QR Code Generation**: Instantly generate a QR code for any shortened URL.
 - **Detailed Analytics**:
@@ -12,8 +18,8 @@ A robust and feature-rich URL shortener service built with Python and FastAPI. T
   - Gather insights on traffic sources with geolocation data (country, region, city).
   - Analyze user demographics (browser, OS, device).
   - Capture and analyze UTM parameters (`utm_source`, `utm_medium`, `utm_campaign`, etc.) for marketing campaigns.
+- **Background Processing**: Analytics data is processed in the background to ensure redirects are as fast as possible.
 - **High Performance**: Utilizes Redis for caching frequently accessed URLs and for efficient rate limiting, reducing database load and ensuring fast redirects.
-- **Asynchronous Tasks**: Background tasks are used for non-critical operations like analytics processing to ensure a fast user experience during redirection.
 
 ## Technology Stack
 
@@ -22,7 +28,7 @@ A robust and feature-rich URL shortener service built with Python and FastAPI. T
 - **Database**: MySQL
 - **Database Migrations**: Alembic
 - **Caching & Rate Limiting**: Redis
-- **Async HTTP Client**: HTTPX
+- **Asynchronous Operations**: `asyncio`, `aiomysql`, `redis[asyncio]`, `httpx`
 - **Data Validation**: Pydantic
 
 ## Setup and Installation
@@ -62,6 +68,13 @@ MYSQL_HOST=localhost
 MYSQL_PORT=3306
 MYSQL_DB=url_shortener_db
 
+# JWT Configuration
+JWT_SECRET_KEY=your_super_secret_key_for_jwt
+JWT_ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+
+
 # Google Safe Browsing API
 GOOGLE_SAFE_BROWSING_API_KEY=your_google_api_key
 ```
@@ -91,32 +104,26 @@ Once the server is running, you can access the interactive API documentation at 
 
 ## API Endpoints
 
-| Method | Endpoint                               | Description                                     |
-|--------|----------------------------------------|-------------------------------------------------|
-| `POST` | `/url/shorten`                         | Shortens a long URL.                            |
-| `GET`  | `/url/{custom_alias}/{short_key}`      | Redirects to the original long URL.             |
-| `GET`  | `/url/{custom_alias}/{short_key}/qr`   | Generates a QR code for the short URL.          |
-| `GET`  | `/url/{custom_alias}/{short_key}/analytics` | Retrieves detailed analytics for the short URL. |
-| `GET`  | `/url/all-urls`                        | Lists all the URLs shortened by the service.    |
+| Method | Endpoint                               | Description                                          |
+|--------|----------------------------------------|------------------------------------------------------|
+| `POST` | `/auth/register`                       | Register a new user.                                 |
+| `POST` | `/auth/login`                          | Log in a user and receive JWTs.                      |
+| `POST` | `/auth/refresh`                        | Refresh an access token using a refresh token.       |
+| `POST` | `/auth/logout`                         | Log out the user by revoking the session.            |
+| `POST` | `/snipr/shorten`                       | Shortens a long URL (Authentication required).       |
+| `GET`  | `/snipr/all-urls`                      | Lists all URLs for the current user (Auth required). |
+| `GET`  | `/snipr/{custom_alias}/{short_key}`    | Redirects to the original long URL.                  |
+| `GET`  | `/snipr/{custom_alias}/{short_key}/qr` | Generates a QR code for the short URL.               |
+| `GET`  | `/snipr/{custom_alias}/{short_key}/analytics` | Retrieves analytics for a URL (Auth required).       |
+| `PATCH`| `/snipr/{short_key}`                   | Updates a short URL's properties (Auth required).    |
+| `DELETE`| `/snipr/{short_key}`                  | Deletes a short URL (Auth required).                 |
 
 ## Future Enhancements
 
 This project is under active development. Here are some of the features planned for the near future:
 
-- **Full CRUD for URLs**:
-  - **Update**: Implement functionality to edit the destination of a short URL.
-  - **Delete**: Add the ability to delete a short URL.
-
-- **Authentication System**:
-  - Implement a robust user authentication and authorization system (e.g., using JWTs).
-
-- **Protected Routes & User-Specific URLs**:
-  - Once authentication is in place, routes for creating, updating, deleting, and viewing analytics for URLs will be protected.
-  - Users will only be able to manage and view analytics for the URLs they have created.
-- **Protected Routes & User-Specific URLs**:
-  - planned to improve files and folders structure
-- **Async Codebase**:
-  - Refactor synchronous database and caching operations to be fully asynchronous to leverage FastAPI's performance benefits.
+- **Enhanced Analytics**:
+  - Implement time-series analytics to show click trends over time.
   
 
 ---

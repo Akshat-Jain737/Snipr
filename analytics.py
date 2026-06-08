@@ -2,12 +2,12 @@ import httpx
 from sqlmodel import Session, select
 from user_agents import parse
 
-from models import Analytics, Analytics_2
-from session import engine
+from DB.models import Analytics, Analytics_2
+from DB.session import engine
 
-def clicks_background(short_url: str, is_unique: bool, ip_address: str, user_agent_str: str):
+async def clicks_background(short_url: str, is_unique: bool, ip_address: str, user_agent_str: str):
     with Session(engine) as session:
-        url_data = session.exec(select(Analytics).where(Analytics.short_url==short_url)).first()
+        url_data = await session.exec(select(Analytics).where(Analytics.short_url==short_url)).first()
         if url_data is None:
             url_data = Analytics(short_url=short_url)
 
@@ -37,7 +37,7 @@ def clicks_background(short_url: str, is_unique: bool, ip_address: str, user_age
                 pass  # Fallback to Unknown if the API fails
 
         # Find existing aggregated record or create a new one
-        analytics_2_data = session.exec(
+        analytics_2_data = await session.exec(
             select(Analytics_2).where(
                 Analytics_2.short_url == short_url,
                 Analytics_2.country == country,
@@ -61,5 +61,5 @@ def clicks_background(short_url: str, is_unique: bool, ip_address: str, user_age
             analytics_2_data.unique_clicks += 1
 
         session.add(url_data)
-        session.add(analytics_2_data)
-        session.commit()
+        await session.add(analytics_2_data)
+        await session.commit()
