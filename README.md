@@ -122,9 +122,9 @@ Once the server is running, you can access the interactive API documentation at 
 
 This project is under active development. Here are some of the features planned for the near future:
 
+
 - **Enhanced Analytics**:
   - Implement time-series analytics to show click trends over time.
-  
 
 ---
 
